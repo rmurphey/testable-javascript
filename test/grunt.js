@@ -27,8 +27,7 @@ module.exports = function(grunt) {
       globals: {}
     },
     mocha: {
-      index: [ 'runner/index.html' ],
-      run: true
+      index: [ 'runner/index.html' ]
     }
   });
 
