@@ -2,6 +2,10 @@ var app = window.app = window.app || {};
 
 app.Model = (function() {
   var Model = function() {
+    if ( !(this instanceof Model) ) {
+      return new Model();
+    }
+
     this._attributes = {};
     RSVP.EventTarget.mixin( this );
   };
