@@ -1,0 +1,20 @@
+{
+  "name": "mocha-boilerplate",
+  "version": "0.0.1",
+  "description": "Boilerplate for adding Mocha tests to a client-side JS project",
+  "directories": {
+    "test": "tests"
+  },
+  "keywords": [
+    "mocha",
+    "testing",
+    "test",
+    "boilerplate"
+  ],
+  "author": "Rebecca Murphey",
+  "license": "MIT/BSD",
+  "dependencies": {
+    "grunt-mocha": "0.1.x",
+    "mocha": "1.6.x"
+  }
+}
