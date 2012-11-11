@@ -2,6 +2,10 @@ var app = window.app = window.app || {};
 
 app.SearchForm = (function() {
   var SearchForm = function( settings ) {
+    if (! (this instanceof SearchForm) ) {
+      return new SearchForm( settings );
+    }
+
     this.$el = $( settings.el );
     this.app = settings.app;
 

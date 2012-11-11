@@ -1,7 +1,11 @@
 var app = window.app = window.app || {};
 
 app.Search = (function() {
-  var Search = function() {};
+  var Search = function() {
+    if (! (this instanceof Search) ) {
+      return new Search();
+    }
+  };
 
   var processResults = function( resp ) {
     return resp.results;

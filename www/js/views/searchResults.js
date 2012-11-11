@@ -3,6 +3,10 @@ var app = window.app = window.app || {};
 app.SearchResults = (function() {
 
   var SearchResults = function( settings ) {
+    if (! (this instanceof SearchResults) ) {
+      return new SearchResults( settings );
+    }
+
     this.app = settings.app;
     this.$el = $( settings.el );
 

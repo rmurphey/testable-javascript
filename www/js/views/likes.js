@@ -2,6 +2,9 @@ var app = window.app = window.app || {};
 
 app.Likes = (function() {
   var Likes = function( settings ) {
+    if (! (this instanceof Likes) ) {
+      return new Likes( settings );
+    }
     this.$el = $( settings.el );
   };
 
