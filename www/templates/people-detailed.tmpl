@@ -1,0 +1,16 @@
+<% if (people.length) { %>
+  <% _.each(people, function(person) { %>
+  <li class="result" data-name="<%= person.name %>">
+    <h2><%= person.name %></h2>
+    <a class="btn btn-primary like"><i class="icon-thumbs-up icon-white"></i> Like</a>
+    <dl class="dl-horizontal">
+      <dt class="company">Company</dt>
+      <dd><%= person.company.name %></dd>
+      <dt class="email">Email</dt>
+      <dd><%= person.email %></dd>
+    </dl>
+  </li>
+  <% }); %>
+<% } else { %>
+  <li class="no-results">No results found.</li>
+<% } %>

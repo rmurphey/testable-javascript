@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Test</title>
+
+  <style>
+  body { font-family: Helvetica, Arial, sans-serif; }
+  .pass { color: green; }
+  .fail { color: red; }
+  .assertion { padding-left: 10px; font-size: 90%; }
+  </style>
+
+  <script src="../www/lib/myUnit.js"></script>
+</head>
+<body>
+  <script>
+    function fizzbuzz(num) {
+      if (!(num % 3) && !(num % 5)) {
+        return 'fizzbuzz';
+      }
+    }
+  </script>
+
+  <script>
+    test('fizzbuzz returns fizzbuzz for multiples of 3 and 5', function() {
+      assert( fizzbuzz(15) === 'fizzbuzz');
+    });
+    test('fizzbuzz returns fizz for multiples of 3', function() {
+      assert( fizzbuzz(3) === 'fizz' );
+    });
+    test('fizzbuzz returns buzz for multiples of 5', function() {
+      assert( fizzbuzz(5) === 'buzz' );
+    });
+    test('fizzbuzz returns number otherwise', function() {
+      assert( fizzbuzz(2) === 2 );
+    });
+  </script>
+</body>
+</html>

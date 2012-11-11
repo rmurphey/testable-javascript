@@ -1,0 +1,166 @@
+body {
+  padding-top: 50px;
+}
+
+.navbar .brand {
+  margin-left: 0;
+}
+
+.navbar .buttons {
+  float: right;
+  margin: 0;
+}
+
+.toggle-target .icon-arrow-down {
+  display: none;
+}
+.target-hidden .toggle-target-elem,
+.target-hidden .reset-target,
+.target-hidden .toggle-target .icon-arrow-up {
+  display: none;
+}
+.target-hidden .toggle-target .icon-arrow-down {
+  display: inline-block;
+}
+
+#main {
+  padding: 0 20px;
+}
+
+.editor {
+  position: relative;
+}
+
+.editor .content {
+  font-size: 115%;
+  padding: 1px;
+  margin-bottom: 0.5em;
+  background: #fff;
+  border: 1px solid #ddd;
+  -webkit-border-radius: 4px;
+     -moz-border-radius: 4px;
+          border-radius: 4px;
+}
+
+.editor .buttons {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  z-index: 999;
+}
+
+.editor .buttons button + button {
+  margin-left: 5px;
+}
+
+.editor .status {
+  position: absolute;
+  bottom: 5px;
+  left: 5px;
+  right: 5px;
+  z-index: 999;
+}
+
+.editor .status .alert {
+  margin: 5px 0 0;
+  font-weight: 700;
+  max-height: 6.4em;
+  overflow: auto;
+}
+
+.editor .footer {
+  opacity: 0.5;
+  -webkit-transition: opacity 0.1s linear;
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  padding: 0 3px;
+  z-index: 998;
+  background: #fff;
+  -webkit-border-bottom-right-radius: 4px;
+      -moz-border-radius-bottomright: 4px;
+          border-bottom-right-radius: 4px;
+}
+
+.editor .footer:hover {
+  opacity: 0.99;
+}
+
+body .CodeMirror pre {
+  line-height: 1.5em;
+  letter-spacing: 1.5;
+}
+
+/* When initially scrolling to a line, this is how far down that line appears */
+body .CodeMirror-scroll {
+  height: 6em;
+}
+
+body .CodeMirror .cm-s-default {
+  font-family: Monaco, Menlo, "Andale Mono", "lucida console", "Courier New", monospace;
+}
+
+body .CodeMirror .cm-s-default .cm-comment {
+  color: #aaa;
+}
+
+body div.CodeMirror-selected,
+body .CodeMirror-focused div.CodeMirror-selected {
+  background: yellow;
+}
+body .CodeMirror-focused .CodeMirror-matchhighlight,
+body .CodeMirror-matchhighlight {
+  background: #fff;
+  border: 2px solid #0a0;
+  margin: -2px;
+  -webkit-border-radius: 4px;
+     -moz-border-radius: 4px;
+          border-radius: 4px;
+}
+
+.CodeMirror-matchhighlight + .CodeMirror-matchhighlight {
+  position: relative;
+  margin-left: -1px !important;
+  padding-left: 1px !important;
+  border-left: none !important;
+     -webkit-border-top-left-radius: 0 !important;
+  -webkit-border-bottom-left-radius: 0 !important;
+         -moz-border-radius-topleft: 0 !important;
+      -moz-border-radius-bottomleft: 0 !important;
+             border-top-left-radius: 0 !important;
+          border-bottom-left-radius: 0 !important;
+}
+
+/* super ocd */
+.CodeMirror-matchhighlight + .CodeMirror-matchhighlight:before {
+    content: "";
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -2px;
+    width: 2px;
+    border-top: 1px solid #fff;
+    border-bottom: 1px solid #fff;
+}
+
+body .CodeMirror .activeline {
+  background: #eee;
+}
+
+.highlight {
+  outline: 2px solid #f70;
+}
+
+a.highlight {
+  outline: 2px solid #f70 !important;
+}
+
+.selected {
+  color: #070;
+  background: #afa;
+}
+
+.lipsum {
+  color: #ccc;
+}
