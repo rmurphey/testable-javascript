@@ -8,6 +8,7 @@ app.SearchForm = (function() {
 
     this.$el = $( settings.el );
     this.app = settings.app;
+    this._pending = false;
 
     this.$el.on( 'submit', $.proxy( this, 'handleSearch' ) );
     RSVP.EventTarget.mixin( this );
@@ -15,8 +16,19 @@ app.SearchForm = (function() {
 
   SearchForm.prototype.handleSearch = function( evt ) {
     evt.preventDefault();
+
+    if ( this._pending ) {
+      return;
+    }
+
+    this._pending = true;
+
     var term = $.trim( this.$el.find( 'input[name="q"]' ).val() );
     this.app.set( 'searchTerm', term );
+  };
+
+  SearchForm.prototype.release = function() {
+    this._pending = false;
   };
 
   return SearchForm;

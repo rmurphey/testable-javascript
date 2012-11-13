@@ -18,6 +18,7 @@ $(function() {
   appModel.on( 'change:searchTerm', function( evt ) {
     data.fetch( evt.value ).done(function( resp ) {
       results.set( resp );
+      searchForm.release();
     });
   });
 

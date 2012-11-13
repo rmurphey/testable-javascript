@@ -11,7 +11,6 @@ define([ 'app/views/searchForm' ], function() {
     });
 
     test('search form sets search term on app model', function() {
-      console.log($('#test').html())
       var appModel = {
         set : sinon.spy(),
         get : sinon.spy()
@@ -28,5 +27,31 @@ define([ 'app/views/searchForm' ], function() {
 
       assert( appModel.set.calledWith( 'searchTerm', 'cat' ) );
     });
+
+    test('locking/releasing', function() {
+      var appModel = {
+        set : sinon.spy(),
+        get : sinon.spy()
+      };
+
+      var searchForm = new app.SearchForm({
+        el : '#searchForm',
+        app : appModel
+      });
+
+      searchForm.$el.find( 'input[name="q"]' ).val( 'cat' );
+
+      searchForm.$el.submit();
+      searchForm.$el.submit();
+
+      assert.equal( appModel.set.callCount, 1 );
+
+      searchForm.release();
+      searchForm.$el.submit();
+      assert.equal( appModel.set.callCount, 2 );
+    });
+
   });
+
+
 });
