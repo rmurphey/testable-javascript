@@ -1,1 +1,240 @@
-(function(a){"use strict";var b=typeof window!="undefined"?window:{},c=b.MutationObserver||b.WebKitMutationObserver,d;if(typeof process!="undefined")d=function(a,b){process.nextTick(function(){a.call(b)})};else if(c){var e=[],f=new c(function(){var a=e.slice();e=[],a.forEach(function(a){var b=a[0],c=a[1];b.call(c)})}),g=document.createElement("div");f.observe(g,{attributes:!0}),d=function(a,b){e.push([a,b]),g.setAttribute("drainQueue","drainQueue")}}else d=function(a,b){setTimeout(function(){a.call(b)},1)};a.async=d;var h=a.Event=function(a,b){this.type=a;for(var c in b){if(!b.hasOwnProperty(c))continue;this[c]=b[c]}},i=function(a,b){for(var c=0,d=a.length;c<d;c++)if(a[c][0]===b)return c;return-1},j=function(a){var b=a._promiseCallbacks;b||(b=a._promiseCallbacks={});return b},k=a.EventTarget={mixin:function(a){a.on=this.on,a.off=this.off,a.trigger=this.trigger;return a},on:function(a,b,c){var d=j(this),e;c=c||this,e=d[a],e||(e=d[a]=[]),i(e,b)===-1&&e.push([b,c])},off:function(a,b){var c=j(this),d;if(!b)c[a]=[];else{d=c[a];var e=i(d,b);e!==-1&&d.splice(e,1)}},trigger:function(a,b){var c=j(this),d,e,f,g,i;if(d=c[a])for(var k=0,l=d.length;k<l;k++)e=d[k],f=e[0],g=e[1],typeof b!="object"&&(b={detail:b}),i=new h(a,b),f.call(g,i)}},l=a.Promise=function(){this.on("promise:resolved",function(a){this.trigger("success",{detail:a.detail})},this),this.on("promise:failed",function(a){this.trigger("error",{detail:a.detail})},this)},m=function(){},n=function(a,b,c,d){var e,f;if(c)try{e=c(d.detail)}catch(g){f=g}else e=d.detail;e instanceof l?e.then(function(a){b.resolve(a)},function(a){b.reject(a)}):c&&e?b.resolve(e):f?b.reject(f):b[a](e)};l.prototype={then:function(a,b){var c=new l;this.on("promise:resolved",function(b){n("resolve",c,a,b)}),this.on("promise:failed",function(a){n("reject",c,b,a)});return c},resolve:function(b){a.async(function(){this.trigger("promise:resolved",{detail:b}),this.isResolved=b},this),this.resolve=m,this.reject=m},reject:function(b){a.async(function(){this.trigger("promise:failed",{detail:b}),this.isRejected=b},this),this.resolve=m,this.reject=m}},k.mixin(l.prototype)})(window.RSVP={})
+define("rsvp",
+  [],
+  function() {
+    "use strict";
+    var browserGlobal = (typeof window !== 'undefined') ? window : {};
+
+    var MutationObserver = browserGlobal.MutationObserver || browserGlobal.WebKitMutationObserver;
+    var RSVP, async;
+
+    if (typeof process !== 'undefined' &&
+      {}.toString.call(process) === '[object process]') {
+      async = function(callback, binding) {
+        process.nextTick(function() {
+          callback.call(binding);
+        });
+      };
+    } else if (MutationObserver) {
+      var queue = [];
+
+      var observer = new MutationObserver(function() {
+        var toProcess = queue.slice();
+        queue = [];
+
+        toProcess.forEach(function(tuple) {
+          var callback = tuple[0], binding = tuple[1];
+          callback.call(binding);
+        });
+      });
+
+      var element = document.createElement('div');
+      observer.observe(element, { attributes: true });
+
+      async = function(callback, binding) {
+        queue.push([callback, binding]);
+        element.setAttribute('drainQueue', 'drainQueue');
+      };
+    } else {
+      async = function(callback, binding) {
+        setTimeout(function() {
+          callback.call(binding);
+        }, 1);
+      };
+    }
+
+    var Event = function(type, options) {
+      this.type = type;
+
+      for (var option in options) {
+        if (!options.hasOwnProperty(option)) { continue; }
+
+        this[option] = options[option];
+      }
+    };
+
+    var indexOf = function(callbacks, callback) {
+      for (var i=0, l=callbacks.length; i<l; i++) {
+        if (callbacks[i][0] === callback) { return i; }
+      }
+
+      return -1;
+    };
+
+    var callbacksFor = function(object) {
+      var callbacks = object._promiseCallbacks;
+
+      if (!callbacks) {
+        callbacks = object._promiseCallbacks = {};
+      }
+
+      return callbacks;
+    };
+
+    var EventTarget = {
+      mixin: function(object) {
+        object.on = this.on;
+        object.off = this.off;
+        object.trigger = this.trigger;
+        return object;
+      },
+
+      on: function(eventNames, callback, binding) {
+        var allCallbacks = callbacksFor(this), callbacks, eventName;
+        eventNames = eventNames.split(/\s+/);
+        binding = binding || this;
+
+        while (eventName = eventNames.shift()) {
+          callbacks = allCallbacks[eventName];
+
+          if (!callbacks) {
+            callbacks = allCallbacks[eventName] = [];
+          }
+
+          if (indexOf(callbacks, callback) === -1) {
+            callbacks.push([callback, binding]);
+          }
+        }
+      },
+
+      off: function(eventNames, callback) {
+        var allCallbacks = callbacksFor(this), callbacks, eventName, index;
+        eventNames = eventNames.split(/\s+/);
+
+        while (eventName = eventNames.shift()) {
+          if (!callback) {
+            allCallbacks[eventName] = [];
+            continue;
+          }
+
+          callbacks = allCallbacks[eventName];
+
+          index = indexOf(callbacks, callback);
+
+          if (index !== -1) { callbacks.splice(index, 1); }
+        }
+      },
+
+      trigger: function(eventName, options) {
+        var allCallbacks = callbacksFor(this),
+            callbacks, callbackTuple, callback, binding, event;
+
+        if (callbacks = allCallbacks[eventName]) {
+          for (var i=0, l=callbacks.length; i<l; i++) {
+            callbackTuple = callbacks[i];
+            callback = callbackTuple[0];
+            binding = callbackTuple[1];
+
+            if (typeof options !== 'object') {
+              options = { detail: options };
+            }
+
+            event = new Event(eventName, options);
+            callback.call(binding, event);
+          }
+        }
+      }
+    };
+
+    var Promise = function() {
+      this.on('promise:resolved', function(event) {
+        this.trigger('success', { detail: event.detail });
+      }, this);
+
+      this.on('promise:failed', function(event) {
+        this.trigger('error', { detail: event.detail });
+      }, this);
+    };
+
+    var noop = function() {};
+
+    var invokeCallback = function(type, promise, callback, event) {
+      var value, error;
+
+      if (callback) {
+        try {
+          value = callback(event.detail);
+        } catch(e) {
+          error = e;
+        }
+      } else {
+        value = event.detail;
+      }
+
+      if (value instanceof Promise) {
+        value.then(function(value) {
+          promise.resolve(value);
+        }, function(error) {
+          promise.reject(error);
+        });
+      } else if (callback && value) {
+        promise.resolve(value);
+      } else if (error) {
+        promise.reject(error);
+      } else {
+        promise[type](value);
+      }
+    };
+
+    Promise.prototype = {
+      then: function(done, fail) {
+        var thenPromise = new Promise();
+
+        if (this.isResolved) {
+          rsvp.async(function() {
+            invokeCallback('resolve', thenPromise, done, { detail: this.resolvedValue });
+          }, this);
+        }
+
+        if (this.isRejected) {
+          rsvp.async(function() {
+            invokeCallback('reject', thenPromise, fail, { detail: this.rejectedValue });
+          }, this);
+        }
+
+        this.on('promise:resolved', function(event) {
+          invokeCallback('resolve', thenPromise, done, event);
+        });
+
+        this.on('promise:failed', function(event) {
+          invokeCallback('reject', thenPromise, fail, event);
+        });
+
+        return thenPromise;
+      },
+
+      resolve: function(value) {
+        resolve(this, value);
+
+        this.resolve = noop;
+        this.reject = noop;
+      },
+
+      reject: function(value) {
+        reject(this, value);
+
+        this.resolve = noop;
+        this.reject = noop;
+      }
+    };
+
+    function resolve(promise, value) {
+      rsvp.async(function() {
+        promise.trigger('promise:resolved', { detail: value });
+        promise.isResolved = true;
+        promise.resolvedValue = value;
+      });
+    }
+
+    function reject(promise, value) {
+      rsvp.async(function() {
+        promise.trigger('promise:failed', { detail: value });
+        promise.isRejected = true;
+        promise.rejectedValue = value;
+      });
+    }
+
+    EventTarget.mixin(Promise.prototype);
+
+    RSVP = { async: async, Promise: Promise, Event: Event, EventTarget: EventTarget };
+    return RSVP;
+  });
