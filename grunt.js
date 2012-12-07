@@ -53,7 +53,7 @@ module.exports = function(grunt) {
       addFile(filepath, grunt.file.read('www/' + filepath));
     });
 
-    var src = 'window._templateMocks = ' + JSON.stringify(obj, null, 2) + ';';
+    var src = 'define(function() { return ' + JSON.stringify(obj, null, 2) + '; });';
 
     grunt.file.write('test/fixtures/templates.js', src);
   });
