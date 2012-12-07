@@ -40,7 +40,7 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.registerTask('mocks', 'Build template mocks', function() {
+  grunt.registerTask('fixtures', 'Build template fixture', function() {
     var obj = {};
 
     var addFile = function(filepath, contents) {
@@ -61,6 +61,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-mocha');
 
   grunt.registerTask('default', 'lint mocha');
-  grunt.registerTask('test', 'mocks mocha lint');
+  grunt.registerTask('test', 'fixtures mocha lint');
 };
 
