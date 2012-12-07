@@ -6,7 +6,7 @@ module.exports = function(grunt) {
   // Project configuration.
   grunt.initConfig({
     lint: {
-      files: ['lib/**/*.js', 'test/**/*.js', '! test/lib/**/*.js', 'www/js/**/*.js']
+      files: ['lib/**/*.js', 'test/tests/**/*.js', 'www/js/**/*.js']
     },
     qunit: {
       files: ['test/**/test-*.html']
@@ -30,16 +30,17 @@ module.exports = function(grunt) {
         browser: true
       },
       globals: {
-        $ : true,
-        _ : true,
-        RSVP : true,
-        app : true
+        define: true,
+        require: true
       }
     },
-    uglify: {}
+    uglify: {},
+    mocha: {
+      index: [ 'test/runner/index.html' ]
+    }
   });
 
-  grunt.registerTask('build-template-mocks', 'Build template mocks', function() {
+  grunt.registerTask('mocks', 'Build template mocks', function() {
     var obj = {};
 
     var addFile = function(filepath, contents) {
@@ -57,20 +58,9 @@ module.exports = function(grunt) {
     grunt.file.write('test/fixtures/templates.js', src);
   });
 
-  grunt.registerTask('spec', 'Run integration tests', function() {
-    var done = this.async();
-    var server = child_process.exec('node server');
-    var spec = child_process.exec('ruby spec/*.rb', function(err) {
-      server.kill();
-      done( err ? false : true );
-    });
+  grunt.loadNpmTasks('grunt-mocha');
 
-    spec.stdout.on('data', function(data) {
-      console.log(data);
-    });
-  });
-
-  grunt.registerTask('default', 'lint qunit');
-  grunt.registerTask('test', 'build-template-mocks qunit lint');
+  grunt.registerTask('default', 'lint mocha');
+  grunt.registerTask('test', 'mocks mocha lint');
 };
 

@@ -6,5 +6,8 @@
     "Faker": "~0.1",
     "express": "~3",
     "underscore": "~1"
+  },
+  "devDependencies": {
+    "grunt-mocha": "0.1.x"
   }
 }

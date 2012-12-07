@@ -1,28 +1,60 @@
-$(function() {
-  var appModel = new app.Model();
+define([
+  'jquery',
+  'underscore'
+], function( $, _ ) {
 
-  var searchForm = new app.SearchForm({
-    el : '#searchForm',
-    app : appModel
-  });
+  var tmplCache = {};
 
-  var likes = new app.Likes( { el : '#liked' } );
+  function loadTemplate( name ) {
+    if ( !tmplCache[ name ]) {
+      tmplCache[ name ] = $.get( '/templates/' + name );
+    }
+    return tmplCache[ name ];
+  }
 
-  var results = new app.SearchResults({
-    el : '#results',
-    app : appModel
-  });
+  $(function() {
 
-  var data = new app.Search();
+    var resultsList = $( '#results' );
+    var liked = $( '#liked' );
+    var pending = false;
 
-  appModel.on( 'change:searchTerm', function( evt ) {
-    data.fetch( evt.value ).done(function( resp ) {
-      results.set( resp );
-      searchForm.release();
+    $( '#searchForm' ).on( 'submit', function( e ) {
+      e.preventDefault();
+
+      if ( pending ) { return; }
+
+      var form = $( this );
+      var query = $.trim( form.find( 'input[name="q"]' ).val() );
+
+      if ( !query ) { return; }
+
+      pending = true;
+
+      $.ajax( '/data/search.json', {
+        data : { q: query },
+        dataType : 'json',
+        success : function( data ) {
+          loadTemplate('people-detailed.tmpl').then(function(t) {
+            var tmpl = _.template( t );
+            resultsList.html( tmpl({ people : data.results }) );
+            pending = false;
+          });
+        }
+      });
+
+      $('<li>', {
+        'class' : 'pending',
+        html : 'Searching &hellip;'
+      }).appendTo( resultsList.empty() );
     });
+
+    resultsList.on( 'click', '.like', function(e) {
+      e.preventDefault();
+      var name = $( this ).closest( 'li' ).find( 'h2' ).text();
+      liked.find( '.no-results' ).remove();
+      $( '<li>', { text: name } ).appendTo( liked );
+    });
+
   });
 
-  appModel.on( 'change:liked', function( evt ) {
-    likes.add( _.last( evt.value ) );
-  });
 });
