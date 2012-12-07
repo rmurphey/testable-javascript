@@ -1,16 +1,8 @@
 define([
   'jquery',
-  'underscore'
-], function( $, _ ) {
-
-  var tmplCache = {};
-
-  function loadTemplate( name ) {
-    if ( !tmplCache[ name ]) {
-      tmplCache[ name ] = $.get( '/templates/' + name );
-    }
-    return tmplCache[ name ];
-  }
+  'underscore',
+  'util'
+], function( $, _, util ) {
 
   $(function() {
 
@@ -34,7 +26,7 @@ define([
         data : { q: query },
         dataType : 'json',
         success : function( data ) {
-          loadTemplate('people-detailed.tmpl').then(function(t) {
+          util.loadTemplate('people-detailed.tmpl').then(function(t) {
             var tmpl = _.template( t );
             resultsList.html( tmpl({ people : data.results }) );
             pending = false;
