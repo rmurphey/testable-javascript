@@ -1,5 +1,10 @@
 # Day 2
 
+## Prep
+
+- install grunt
+- install phantomjs
+
 ## Refactoring an App
 
 - review the existing app
@@ -9,6 +14,8 @@
 
 - load the template
 - fake xhr
+- check xhr url
+- fake xhr response
 
 ### searchForm.js (group)
 
@@ -17,13 +24,14 @@
 - deal with pending searches
 - rsvp for events
 
-### likes.js (group exercise)
+### likes.js (group/exercise)
 
 - use a template for individual people
-- .add( name )
 - how to load templates without a server?
     - grunt task for generating templates fixture
     - squire for mocking util API
+- .add( name )
+- ensure the same name isn't added twice?
 
 ### data.js (exercise)
 
@@ -46,4 +54,5 @@
 
 ## Tools
 
-- grunt-mocha w/phantomjs
+- grunt-mocha w/phantomjs -- grunt mocha
+- grunt lint
