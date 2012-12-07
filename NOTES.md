@@ -22,7 +22,7 @@
 - announce an event when there's a search
 - ignore empty searches
 - deal with pending searches
-- rsvp for events
+- RSVP.js for events
 
 ### likes.js (group/exercise)
 
@@ -44,6 +44,10 @@
 - .setResults( results )
 - announce an event when there's a like
 - BUG: like button isn't removed!
+
+### gluing it all together
+
+- all that should be left in main.js when we're done is the glue
 
 ## Discussion
 
