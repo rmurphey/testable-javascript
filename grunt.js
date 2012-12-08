@@ -8,12 +8,9 @@ module.exports = function(grunt) {
     lint: {
       files: ['lib/**/*.js', 'test/tests/**/*.js', 'www/js/**/*.js']
     },
-    qunit: {
-      files: ['test/**/test-*.html']
-    },
     watch: {
       files: [ '<config:lint.files>', 'www/templates/*.tmpl' ],
-      tasks: 'test'
+      tasks: 'fixtures mocha'
     },
     jshint: {
       options: {
@@ -31,7 +28,8 @@ module.exports = function(grunt) {
       },
       globals: {
         define: true,
-        require: true
+        require: true,
+        sinon: true
       }
     },
     uglify: {},

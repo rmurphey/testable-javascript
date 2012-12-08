@@ -3,6 +3,7 @@
 
   require.config({
     deps: [ isTest ? '../../test/config' : 'main' ],
+
     paths: {
       jquery: '../lib/jquery/jquery',
       underscore: '../lib/underscore/underscore',
@@ -15,6 +16,7 @@
       fixtures: '../../test/fixtures',
       squire: '../lib/squire'
     },
+
     shim: {
       underscore: {
         exports: '_'

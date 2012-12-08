@@ -1,57 +1,36 @@
 define([
   'jquery',
-  'underscore'
-], function( $, _ ) {
-  var tmplCache = {};
-
-  function loadTemplate(name) {
-    if ( !tmplCache[ name ] ) {
-      tmplCache[ name ] = $.get( '/templates/' + name );
-    }
-    return tmplCache[ name ];
-  }
-
+  'searchForm',
+  'searchResults',
+  'likes',
+  'data'
+], function( $, SearchForm, SearchResults, Likes, SearchData ) {
   $(function() {
 
-    var resultsList = $( '#results' );
-    var liked = $( '#liked' );
     var pending = false;
 
-    $( '#searchForm' ).on( 'submit', function( e ) {
-      e.preventDefault();
+    var searchForm = new SearchForm( $('#searchForm') );
+    var searchResults = new SearchResults( $('#results') );
+    var likes = new Likes( $('#liked') );
+    var searchData = new SearchData();
 
+    searchForm.on( 'search', function( event ) {
       if ( pending ) { return; }
 
-      var form = $( this );
-      var query = $.trim( form.find( 'input[name="q"]' ).val() );
-
-      if ( !query ) { return; }
-
+      var query = event.detail;
       pending = true;
 
-      $.ajax( '/data/search.json', {
-        data : { q: query },
-        dataType : 'json',
-        success : function( data ) {
-          loadTemplate('people-detailed.tmpl').then(function(t) {
-            var tmpl = _.template( t );
-            resultsList.html( tmpl({ people : data.results }) );
-            pending = false;
-          });
-        }
+      searchData.fetch( query ).then(function( results ) {
+        searchResults.setResults( results );
+        pending = false;
       });
 
-      $('<li>', {
-        'class' : 'pending',
-        html : 'Searching &hellip;'
-      }).appendTo( resultsList.empty() );
+      searchResults.pending();
     });
 
-    resultsList.on( 'click', '.like', function(e) {
-      e.preventDefault();
-      var name = $( this ).closest( 'li' ).find( 'h2' ).text();
-      liked.find( '.no-results' ).remove();
-      $( '<li>', { text: name } ).appendTo( liked );
+    searchResults.on( 'like', function( evt ) {
+      var name = evt.detail;
+      likes.add( name );
     });
 
   });

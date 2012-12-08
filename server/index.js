@@ -33,7 +33,7 @@ app.get( '/data/search.json', function(req, res) {
   }, 500);
 });
 
-// app.use( '/test', express.static( baseDir + 'test') );
+app.use( '/test', express.static( baseDir + 'test') );
 
 app.listen( 4000 );
 
