@@ -5,14 +5,12 @@ module.exports = function(grunt) {
 
   // Project configuration.
   grunt.initConfig({
-    lint: {
-      files: ['lib/**/*.js', 'test/tests/**/*.js', 'www/js/**/*.js']
-    },
     watch: {
-      files: [ '<config:lint.files>', 'www/templates/*.tmpl' ],
+      files: [ 'www/templates/*.tmpl' ],
       tasks: 'fixtures mocha'
     },
     jshint: {
+      all: ['lib/**/*.js', 'test/tests/**/*.js', 'www/js/**/*.js'],
       options: {
         curly: true,
         eqeqeq: true,
@@ -24,12 +22,12 @@ module.exports = function(grunt) {
         undef: true,
         boss: true,
         eqnull: true,
-        browser: true
-      },
-      globals: {
-        define: true,
-        require: true,
-        sinon: true
+        browser: true,
+          globals: {
+          define: true,
+          require: true,
+          sinon: true
+        }
       }
     },
     uglify: {},
@@ -57,8 +55,9 @@ module.exports = function(grunt) {
   });
 
   grunt.loadNpmTasks('grunt-mocha');
+  grunt.loadNpmTasks('grunt-contrib-jshint');
 
-  grunt.registerTask('default', 'lint mocha');
-  grunt.registerTask('test', 'fixtures mocha lint');
+  grunt.registerTask('default', ['jshint', 'mocha']);
+  grunt.registerTask('test', ['fixtures', 'mocha', 'jshint']);
 };
 

@@ -2,12 +2,14 @@
   "name": "testable-javascript",
   "version": "0.0.0",
   "main": "server/index.js",
-  "dependencies" : {
+  "dependencies": {
     "Faker": "~0.1",
     "express": "~3",
     "underscore": "~1"
   },
   "devDependencies": {
-    "grunt-mocha": "0.1.x"
+    "grunt": "~0.4.0",
+    "grunt-mocha": "~0.3.4",
+    "grunt-contrib-jshint": "~0.6.0"
   }
 }
