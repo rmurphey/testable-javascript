@@ -1,4 +1,67 @@
 define(function() {
+
+  /**
+   * Utility Functions
+   */
+
+  var toString = Object.prototype.toString;
+
+  var isArray = function(arr) {
+    return toString.call(arr) === '[object Array]';
+  };
+
+  var indexOf = function(arr, search) {
+    for (var i = 0, length = arr.length; i < length; i++) {
+      if (arr[i] === search) {
+        return i;
+      }
+    }
+
+    return -1;
+  };
+
+  var each = function(obj, iterator, context) {
+    var breaker = {};
+
+    if (obj === null) {
+      return;
+    }
+
+    if (Array.prototype.forEach && obj.forEach === Array.prototype.forEach) {
+      obj.forEach(iterator, context);
+    } else if (obj.length === +obj.length) {
+      for (var i = 0, l = obj.length; i < l; i++) {
+        if (iterator.call(context, obj[i], i, obj) === breaker){
+          return;
+        }
+      }
+    } else {
+      for (var key in obj) {
+        if (obj.hasOwnProperty(key)) {
+          if (iterator.call(context, obj[key], key, obj) === breaker) {
+            return;
+          }
+        }
+      }
+    }
+  };
+
+  /**
+   * Require.js Abstractions
+   */
+
+  var getContext = function(id) {
+    return requirejs.s.contexts[id];
+  };
+
+  var undef = function(context, module) {
+    if (context.undef) {
+      return context.undef(module);
+    }
+
+    return context.require.undef(module);
+  };
+
   /**
    * Create a context name incrementor.
    */
@@ -11,7 +74,15 @@ define(function() {
   var Squire = function() {
     this.mocks = {};
     this._store = [];
+    this.requiredCallbacks = [];
     this.configure.apply(this, arguments);
+  };
+
+  /**
+   * Hook to call when the require function is called.
+   */
+  Squire.prototype.onRequired = function(cb) {
+    this.requiredCallbacks.push(cb);
   };
 
   /**
@@ -29,93 +100,100 @@ define(function() {
       context = '_'; // Default require.js context
     }
 
-    context = requirejs.s.contexts[context];
+    context = getContext(context);
 
     if ( ! context) {
       throw new Error('This context has not been created!');
     }
 
-    for (property in context.config) {
-      if(context.config.hasOwnProperty(property)) {
-        if (property !== 'deps') {
-          configuration[property] = context.config[property];
-        }
+    each(context.config, function(property, key) {
+      if (key !== 'deps') {
+        configuration[key] = property;
       }
-    }
+    });
 
     configuration.context = this.id;
 
     this.load = requirejs.config(configuration);
-
   };
 
   Squire.prototype.mock = function(path, mock) {
     var alias;
     if (typeof path === 'object') {
-      for (alias in path) {
-        this.mock(alias, path[alias]);
-      }
+      each(path, function(alias, key) {
+        this.mock(key, alias);
+      }, this);
+    } else {
+      this.mocks[path] = mock;
     }
-    this.mocks[path] = mock;
 
     return this;
   };
 
   Squire.prototype.store = function(path) {
-    this._store.push(path);
+    if (path && typeof path === 'string') {
+      this._store.push(path);
+    } else if(path && isArray(path)) {
+      each(path, function(pathToStore) {
+        this.store(pathToStore);
+      }, this);
+    }
     return this;
   };
 
-  Squire.prototype.require = function(dependencies, callback) {
+  Squire.prototype.require = function(dependencies, callback, errback) {
     var magicModuleName = 'mocks';
     var self = this;
     var path, magicModuleLocation;
 
-    magicModuleLocation = dependencies.indexOf(magicModuleName);
+    magicModuleLocation = indexOf(dependencies, magicModuleName);
 
-    if (~magicModuleLocation) {
+    if (magicModuleLocation !== -1) {
       dependencies.splice(magicModuleLocation, 1);
     }
 
-    for (path in this.mocks) {
-      // Require.js code to the next require.
-      define(path, this.mocks[path]);
-    }
+    each(this.mocks, function(mock, path) {
+      define(path, mock);
+    });
 
     this.load(dependencies, function() {
       var store = {};
+      var args = Array.prototype.slice.call(arguments);
       var dependency;
 
-      if (~magicModuleLocation) {
-        for (dependency in self._store) {
-          store[self._store[dependency]] = requirejs.s.contexts[self.id].defined[self._store[dependency]];
-        }
+      if (magicModuleLocation !== -1) {
+        each(self._store, function(dependency) {
+          store[dependency] = getContext(self.id).defined[dependency];
+        });
 
-        Array.prototype.splice.call(arguments, magicModuleLocation, 0, {
+        args.splice(magicModuleLocation, 0, {
           mocks: self.mocks,
           store: store
         });
       }
 
-      callback.apply(null, arguments);
-    });
+      callback.apply(null, args);
+
+      each(self.requiredCallbacks, function(cb) {
+        cb.call(null, dependencies, args);
+      });
+    }, errback);
   };
 
   Squire.prototype.clean = function(mock) {
     var path;
 
     if (mock && typeof mock === 'string') {
-      requirejs.s.contexts[this.id].undef(mock);
-      delete requirejs.s.contexts[this.id].defined[mock];
+      undef(getContext(this.id), mock);
       delete this.mocks[mock];
-    } else if(mock && typeof mock === 'array') {
-      for (path in mock) {
-        this.clean(path);
-      }
+    } else if(mock && isArray(mock)) {
+      each(mock, function(mockToClean) {
+        this.clean(mockToClean);
+      }, this);
     } else {
-      for (path in this.mocks) {
+      each(this.mocks, function(mock, path){
         this.clean(path);
-      }
+      }, this);
     }
 
     return this;
@@ -123,10 +201,48 @@ define(function() {
 
   Squire.prototype.remove = function() {
     var path;
-    for (path in requirejs.s.contexts[this.id].defined) {
-      requirejs.s.contexts[this.id].undef(path);
-    }
+
+    each(getContext(this.id).defined, function(dependency, path) {
+      undef(getContext(this.id), path);
+    }, this);
+
     delete requirejs.s.contexts[this.id];
+  };
+
+  Squire.prototype.run = function(deps, callback) {
+    var self = this;
+    var run = function(done) {
+      self.require(deps, function() {
+        callback.apply(null, arguments);
+        done();
+      });
+    };
+
+    run.toString = function() {
+      return callback.toString();
+    };
+
+    return run;
+  };
+
+  /**
+   * Utilities
+   */
+
+  Squire.Helpers = {};
+
+  Squire.Helpers.returns = function(what) {
+    return function() {
+      return what;
+    };
+  };
+
+  Squire.Helpers.constructs = function(what) {
+    return function() {
+      return function() {
+        return what;
+      };
+    };
   };
 
   return Squire;

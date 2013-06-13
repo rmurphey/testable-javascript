@@ -1,6 +1,6 @@
 // IMPLEMENTATION
 
-define([ 'jquery' ], function( $, templates ) {
+define([ 'jquery' ], function ($) {
   return {
     loadTemplate: function( name ) {
       if ( !this._cache[ name ] ) {
