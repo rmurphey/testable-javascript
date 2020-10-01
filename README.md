@@ -20,7 +20,7 @@ Install [grunt](http://gruntjs.com) by running `npm install -g grunt`.
 
 ### PhantomJS
 
-See the PhantomJS section [here](https://github.com/gruntjs/grunt/blob/master/docs/faq.md) for details on installing PhantomJS.
+See the PhantomJS section [here] (https://github.com/gruntjs/grunt/blob/master/docs/faq.md) for details on installing PhantomJS.
 
 
 ## Running the Code and Tests
