@@ -3,7 +3,7 @@ var child_process = require('child_process');
 
 module.exports = function(grunt) {
 
-  // Project configuration.
+  // Project configuration goes here.
   grunt.initConfig({
     watch: {
       files: [ 'www/templates/*.tmpl' ],
