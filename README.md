@@ -1,6 +1,6 @@
 # Workshop: Writing Testable JavaScript
 
-## Installation
+## Installation dependencies
 
 You will need to use the command line to install the dependencies for this project. See the section below on accessing the command line if you need help.
 
